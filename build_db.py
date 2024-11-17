@@ -9,26 +9,28 @@ from config import api_key
 
 
 #### Load the variables for reproducibility
-"""
+# """
 with open("retrieved_studies.pkl", "rb") as f:
     retrieved_studies = pickle.load(f)
 
 with open("mapped_data_all.pkl", "rb") as f:
     mapped_data_all = pickle.load(f)
 
-"""
+# """
 
 
 def create_col(client, db_name, col_name, schema=None):
     db = client[db_name]
-    collection = db[col_name]
+
+    if col_name in db.list_collection_names():
+        db.drop_collection(col_name)
 
     if schema is None:
         # Create collection without validation
         collection = db.create_collection(col_name)
     else:
         # Database validation.
-        db.create_collection(
+        collection = db.create_collection(
             col_name, validator={"$jsonSchema": schema}, validationAction="warn"
         )
     return collection
@@ -276,110 +278,49 @@ def store_in_collection(field, content, results_dict, collection, batch_size=100
 
 if __name__ == "__main__":
 
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    mongoDB_client = pymongo.MongoClient("mongodb://localhost:27017/")
 
-    # specify the json schema for database validation.
-    schema = {
-        "type": "object",
-        "additionalProperties": True,
-        "properties": {
-            "trialId": {
-                "type": "string",
-                "description": "A unique identifier for the clinical trial.",
-            },
-            "title": {
-                "type": "string",
-                "description": "The official title of the clinical trial.",
-            },
-            "startDate": {
-                "type": "string",
-                "pattern": "^^\\d{4}-\\d{2}-\\d{2}|NA$",
-                "description": "The start date of the clinical trial.",
-            },
-            "endDate": {
-                "type": "string",
-                "pattern": "^^\\d{4}-\\d{2}-\\d{2}|NA$",
-                "description": "The end date of the clinical trial, if applicable.",
-            },
-            "phase": {
-                "type": "string",
-                "enum": ["Phase 1", "Phase 2", "Phase 3", "Phase 4", "Other"],
-                "description": "The phase of the clinical trial.",
-            },
-            "principalInvestigator": {
-                "type": "array",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "The name of the principal investigator.",
-                    },
-                    "affiliation": {
-                        "type": "string",
-                        "description": "The affiliation of the principal investigator.",
-                    },
-                },
-                "required": ["name"],
-            },
-            "locations": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "facility": {
-                            "type": "string",
-                            "description": "Name of the facility where the trial is conducted.",
-                        },
-                        "city": {
-                            "type": "string",
-                            "description": "The city where the facility is located.",
-                        },
-                        "country": {
-                            "type": "string",
-                            "description": "The country where the facility is located.",
-                        },
-                    },
-                },
-            },
-            "eligibilityCriteria": {
-                "type": "string",
-                "description": "A description of the eligibility criteria for the trial.",
-            },
-        },
-        "required": ["trialId", "title", "phase"],
-    }
+    # Load schema from JSON file
+    with open("schema.json", "r") as schema_file:
+        schema = json.load(schema_file)
 
     # Create a collection
-    # final_collection = create_col(client, "ClinicalTrialsDB", "clinical_trial_collection", schema)
-
+    print("Create a collection.")
     final_collection = create_col(
-        client, "ClinicalTrialsDB", "clinical_trial_collection", schema
+        mongoDB_client, "ClinicalTrialsDB", "clinical_trial_collection", schema
     )
 
     # Retrieve metadata via clinicaltrials.gov API
     ct = ClinicalTrials()
-
+    print("Retrieve metadata via clinicaltrials.gov API.")
+    """
     retrieved_studies = ct.get_full_studies(
         search_expr="AREA[LastUpdatePostDate]RANGE[2024-10-20, 2024-10-21]",
         max_studies=1000,  # if more than 1000?
         fmt="json",
     )
+    """
 
     # Transform the input data
+    print("Transform the input data.")
     mapped_data_all = map_data(retrieved_studies)
-
+    print("Insert the mapped data to the collection.")
     upsert_data_to_db(mapped_data_all, final_collection)
 
     # Perform LLM
     print("Perform LLM")
     client = OpenAI(api_key=api_key)
-    print("extract_info")
-    results_dict = extract_info(final_collection, "trialId", "eligibilityCriteria")
+    print("Extracting info...")
+    # results_dict = extract_info(final_collection, "trialId", "eligibilityCriteria")
 
-    with open("results_dict.pkl", "wb") as f:
-        pickle.dump(results_dict, f)
+    with open("results_dict.pkl", "rb") as f:
+        results_dict = pickle.load(f)
 
-    print("store_in_collection")
+    print("Storing the extracted info in the collection as 'extractedDiseases'...")
     store_in_collection("trialId", "extractedDiseases", results_dict, final_collection)
+
+    mongoDB_client.close()
+    print("Pipeline finished!")
 
     # If we were to a link the PI to a researcher profile:
     """
