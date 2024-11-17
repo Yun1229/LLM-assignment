@@ -9,14 +9,14 @@ from config import api_key
 
 
 #### Load the variables for reproducibility
-# """
+"""
 with open("retrieved_studies.pkl", "rb") as f:
     retrieved_studies = pickle.load(f)
 
 with open("mapped_data_all.pkl", "rb") as f:
     mapped_data_all = pickle.load(f)
 
-# """
+"""
 
 
 def create_col(client, db_name, col_name, schema=None):
@@ -33,6 +33,7 @@ def create_col(client, db_name, col_name, schema=None):
         collection = db.create_collection(
             col_name, validator={"$jsonSchema": schema}, validationAction="warn"
         )
+        print("Database validated with schema.")
     return collection
 
 
@@ -293,13 +294,13 @@ if __name__ == "__main__":
     # Retrieve metadata via clinicaltrials.gov API
     ct = ClinicalTrials()
     print("Retrieve metadata via clinicaltrials.gov API.")
-    """
+    # """
     retrieved_studies = ct.get_full_studies(
         search_expr="AREA[LastUpdatePostDate]RANGE[2024-10-20, 2024-10-21]",
         max_studies=1000,  # if more than 1000?
         fmt="json",
     )
-    """
+    # """
 
     # Transform the input data
     print("Transform the input data.")
@@ -311,10 +312,11 @@ if __name__ == "__main__":
     print("Perform LLM")
     client = OpenAI(api_key=api_key)
     print("Extracting info...")
-    # results_dict = extract_info(final_collection, "trialId", "eligibilityCriteria")
-
+    results_dict = extract_info(final_collection, "trialId", "eligibilityCriteria")
+    """
     with open("results_dict.pkl", "rb") as f:
         results_dict = pickle.load(f)
+    """
 
     print("Storing the extracted info in the collection as 'extractedDiseases'...")
     store_in_collection("trialId", "extractedDiseases", results_dict, final_collection)

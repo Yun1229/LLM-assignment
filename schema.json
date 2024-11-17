@@ -1,0 +1,80 @@
+{
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "trialId": {
+            "type": "string",
+            "description": "A unique identifier for the clinical trial."
+        },
+        "title": {
+            "type": "string",
+            "description": "The official title of the clinical trial."
+        },
+        "startDate": {
+            "type": "string",
+            "pattern": "^^\\d{4}-\\d{2}-\\d{2}|NA$",
+            "description": "The start date of the clinical trial."
+        },
+        "endDate": {
+            "type": "string",
+            "pattern": "^^\\d{4}-\\d{2}-\\d{2}|NA$",
+            "description": "The end date of the clinical trial, if applicable."
+        },
+        "phase": {
+            "type": "string",
+            "enum": [
+                "Phase 1",
+                "Phase 2",
+                "Phase 3",
+                "Phase 4",
+                "Other"
+            ],
+            "description": "The phase of the clinical trial."
+        },
+        "principalInvestigator": {
+            "type": "array",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the principal investigator."
+                },
+                "affiliation": {
+                    "type": "string",
+                    "description": "The affiliation of the principal investigator."
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "facility": {
+                        "type": "string",
+                        "description": "Name of the facility where the trial is conducted."
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "The city where the facility is located."
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "The country where the facility is located."
+                    }
+                }
+            }
+        },
+        "eligibilityCriteria": {
+            "type": "string",
+            "description": "A description of the eligibility criteria for the trial."
+        }
+    },
+    "required": [
+        "trialId",
+        "title",
+        "phase"
+    ]
+}
