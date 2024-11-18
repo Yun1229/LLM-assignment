@@ -21,9 +21,9 @@ This repository contains a pipeline that retrieves data from ClinicalTrials.gov,
 * ```pickle```
 
 ### Setup
-1. Configure API Keys
+1. Configure API Keys: <br/>
    Add your OpenAI API key to a config.py file: ```api_key = "your_openai_api_key"```
-2. Run the Script
+2. Run the Script: <br/>
    Ensure MongoDB is running and execute the script:```python build_db.py```
 
 ### Additional Files in the Project
