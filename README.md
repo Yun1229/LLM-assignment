@@ -1,5 +1,5 @@
 # Clinical Trials Data Pipeline
-This repository contains a pipeline that retrieves data from ClinicalTrials.gov, transforms and stores it in MongoDB, and applies LLM to extract diseases/conditions from eligibility criteria.
+This repository contains a pipeline that retrieves data from ClinicalTrials.gov, transforms and stores it in MongoDB, and applies LLM to extract diseases/conditions from inclusion criteria.
 
 ## Features
 * Uses the ```pytrials``` library to fetch clinical trials data from ClinicalTrials.gov.
