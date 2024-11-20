@@ -347,7 +347,7 @@ if __name__ == "__main__":
             """
             with open("results_dict.pkl", "rb") as f:
                 results_dict = pickle.load(f)
-            """
+            """ ""
         except OpenAI.error.OpenAIError as e:
             print(f"OpenAI API Error: {e}")
         except Exception as e:
