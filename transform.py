@@ -19,7 +19,7 @@ def extract_info(collection, field, content):
         if opvalue:
             if content == "eligibilityCriteria":
                 inclusion_text = LLM.preprocess_text(opvalue)
-                client = LLM.get_client(api_key)
+                client = LLM.get_client(api_key=api_key)
                 opvalue = LLM.LLM_model(client, inclusion_text)
             if isinstance(opkey, list):
                 for opkeysingle in opkey:
