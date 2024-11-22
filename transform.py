@@ -1,16 +1,18 @@
 import LLM
 import mongoDB as db
+from pymongo.collection import Collection
+from typing import Dict, Any
 from config import api_key
 
 
-def add_dict_pair(opkey, opvalue, results_dict):
+def add_dict_pair(opkey: str, opvalue: str, results_dict: Dict[str, Any]):
     if opkey not in results_dict:
         results_dict[opkey] = []
     results_dict[opkey].append(opvalue)
 
 
 # Function to process trials and extract conditions
-def extract_info(collection, field, content):
+def extract_info(collection: Collection, field: str, content: str) -> Dict[str, Any]:
     results_dict = {}
 
     for trial in collection.find({}):

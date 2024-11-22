@@ -1,8 +1,9 @@
 import nestedField as nf
+from typing import Dict, List, Any, Optional
 
 
 ### Functions for data mapping
-def get_date(study):
+def get_date(study: Dict[str, Any]) -> str:
     start = nf.get_nested_value(
         study, "protocolSection.statusModule.startDateStruct.date"
     )
@@ -11,7 +12,7 @@ def get_date(study):
         study, "protocolSection.statusModule.completionDateStruct.date"
     )
 
-    def modify_date(date):
+    def modify_date(date: Optional[str]):
         if date is None:
             return "NA"
         if len(date) == 7:
@@ -22,7 +23,7 @@ def get_date(study):
     return modify_date(start), modify_date(end)
 
 
-def get_phase(study):
+def get_phase(study: Dict[str, Any]) -> str:
     phase = nf.get_nested_value(study, "protocolSection.designModule.phases")
 
     if phase == None:
@@ -37,7 +38,7 @@ def get_phase(study):
     )
 
 
-def get_principal_investigator(study):
+def get_principal_investigator(study: Dict[str, Any]) -> List[Dict[str, str]]:
     overall_officials = nf.get_nested_value(
         study, "protocolSection.contactsLocationsModule.overallOfficials"
     )
@@ -54,7 +55,7 @@ def get_principal_investigator(study):
     ]
 
 
-def get_locations(study):
+def get_locations(study: Dict[str, Any]) -> List[Dict[str, str]]:
     locations = nf.get_nested_value(
         study, "protocolSection.contactsLocationsModule.locations"
     )
@@ -71,7 +72,7 @@ def get_locations(study):
     ]
 
 
-def transform_study(study):
+def transform_study(study: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "trialId": nf.get_nested_value(
@@ -91,7 +92,7 @@ def transform_study(study):
     }
 
 
-def map_data(input_data):
+def map_data(input_data: Dict[str, Any]) -> Dict[str, Any]:
     transformed_data = []
     for study in input_data["studies"]:
         transformed_data.append(transform_study(study))

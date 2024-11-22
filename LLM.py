@@ -5,13 +5,13 @@ from openai import OpenAI
 ### Functions for LLM
 
 
-def get_client(api_key):
+def get_client(api_key: str) -> OpenAI:
     client = OpenAI(api_key=api_key)
     return client
 
 
 # Minimize API Calls by Using Local Processing First
-def preprocess_text(eligibility_text):
+def preprocess_text(eligibility_text: str) -> str:
     # Extract the "Inclusion Criteria" section using regex or keyword-based filtering
     match = re.search(
         r"Inclusion Criteria:.*?(Exclusion Criteria:|$)",
@@ -23,7 +23,7 @@ def preprocess_text(eligibility_text):
     return eligibility_text
 
 
-def LLM_model(client, eligibility_text):
+def LLM_model(client: OpenAI, eligibility_text: str) -> str:
     # Construct a prompt to extract diseases/conditions only from inclusion criteria
     prompt = f"""
     Extract all diseases, conditions, or criteria related to medical treatments or exposures.

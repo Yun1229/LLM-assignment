@@ -1,7 +1,14 @@
-from pymongo import UpdateOne, InsertOne
+from pymongo import MongoClient, UpdateOne, InsertOne
+from pymongo.collection import Collection
+from typing import Optional, Dict, Any
 
 
-def create_col(client, db_name, col_name, schema=None):
+def create_col(
+    client: MongoClient,
+    db_name: str,
+    col_name: str,
+    schema: Optional[Dict[str, Any]] = None,
+) -> None:
     db = client[db_name]
 
     if col_name in db.list_collection_names():
@@ -20,7 +27,7 @@ def create_col(client, db_name, col_name, schema=None):
 
 
 ### Functions to insert or update data in MongoDB
-def upsert_data_to_db(data, collection):
+def upsert_data_to_db(data: Dict[str, Any], collection: Collection):
     requests = []
 
     # Fetch original documents before updating
@@ -51,7 +58,13 @@ def upsert_data_to_db(data, collection):
     collection.create_index("trialId")
 
 
-def store_in_collection(field, content, results_dict, collection, batch_size=100):
+def store_in_collection(
+    field: str,
+    content: str,
+    results_dict: Dict[str, Any],
+    collection: Collection,
+    batch_size=100,
+):
     operations = []
 
     for key, value in results_dict.items():
